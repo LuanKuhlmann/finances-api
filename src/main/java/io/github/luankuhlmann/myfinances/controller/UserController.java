@@ -4,25 +4,27 @@ import io.github.luankuhlmann.myfinances.dto.UserDTO;
 import io.github.luankuhlmann.myfinances.exception.AuthenticationError;
 import io.github.luankuhlmann.myfinances.exception.BusinessRuleException;
 import io.github.luankuhlmann.myfinances.model.entities.User;
+import io.github.luankuhlmann.myfinances.service.EntriesService;
 import io.github.luankuhlmann.myfinances.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
+    private final EntriesService entriesService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, EntriesService entriesService) {
         this.userService = userService;
+        this.entriesService = entriesService;
     }
 
-    @PostMapping("/register")
+    @PostMapping
     public ResponseEntity save(@RequestBody UserDTO userDTO) {
         User user = new User();
         user.setName(userDTO.getName());
@@ -45,5 +47,16 @@ public class UserController {
         }catch (AuthenticationError e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("balance/{id}")
+    public ResponseEntity getBalance(@PathVariable("id") Long id) {
+        Optional<User> user = userService.findById(id);
+
+        if(user.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(entriesService.getBalancePerUser(id));
     }
 }

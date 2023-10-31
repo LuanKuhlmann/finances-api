@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Table(name = "entries", schema = "finance")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Entries {
 
     @Id

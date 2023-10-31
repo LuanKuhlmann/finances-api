@@ -3,10 +3,12 @@ package io.github.luankuhlmann.myfinances.service.impl;
 import io.github.luankuhlmann.myfinances.exception.BusinessRuleException;
 import io.github.luankuhlmann.myfinances.model.entities.Entries;
 import io.github.luankuhlmann.myfinances.model.entities.enums.EntriesStatus;
+import io.github.luankuhlmann.myfinances.model.entities.enums.EntriesType;
 import io.github.luankuhlmann.myfinances.model.repositories.EntriesRepository;
 import io.github.luankuhlmann.myfinances.service.EntriesService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class EntriesServiceImpl implements EntriesService {
@@ -88,5 +91,25 @@ public class EntriesServiceImpl implements EntriesService {
         if(entries.getType() == null) {
             throw new BusinessRuleException("Inform a entries type");
         }
+    }
+
+    @Override
+    public Optional<Entries> findById(Long id) {
+        return entriesRepository.findById(id);
+    }
+
+    @Override
+    public BigDecimal getBalancePerUser(Long id) {
+        BigDecimal revenue = entriesRepository.getBalancePerEntriesStatusAndUser(id, EntriesType.REVENUE);
+        BigDecimal expense = entriesRepository.getBalancePerEntriesStatusAndUser(id, EntriesType.EXPENSE);
+
+        if (revenue == null) {
+            revenue = BigDecimal.ZERO;
+        }
+        if (expense == null) {
+            revenue = BigDecimal.ZERO;
+        }
+
+        return revenue.subtract(expense);
     }
 }
