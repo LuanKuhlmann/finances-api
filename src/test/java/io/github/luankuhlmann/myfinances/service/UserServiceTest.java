@@ -1,7 +1,7 @@
 package io.github.luankuhlmann.myfinances.service;
 
 import io.github.luankuhlmann.myfinances.exception.AuthenticationError;
-import io.github.luankuhlmann.myfinances.exception.EmailAlreadyExistsException;
+import io.github.luankuhlmann.myfinances.exception.BusinessRuleException;
 import io.github.luankuhlmann.myfinances.model.entities.User;
 import io.github.luankuhlmann.myfinances.model.repositories.UserRepository;
 import io.github.luankuhlmann.myfinances.service.impl.UserServiceImpl;
@@ -71,9 +71,9 @@ class UserServiceTest {
     @Test
     public void shouldNotSaveAUserIfEmailAlreadyRegistered() {
         User user = createUser();
-        Mockito.doThrow(EmailAlreadyExistsException.class).when(userService).validateEmail(EMAIL);
+        Mockito.doThrow(BusinessRuleException.class).when(userService).validateEmail(EMAIL);
 
-        Assertions.assertThrows(EmailAlreadyExistsException.class, () -> userService.saveUser(user));
+        Assertions.assertThrows(BusinessRuleException.class, () -> userService.saveUser(user));
 
         Mockito.verify(userRepository, Mockito.never()).save(user);
     }
@@ -89,7 +89,7 @@ class UserServiceTest {
     public void shouldThrowExceptionWhenTryingToValidateAAlreadyRegisteredEmail() {
         Mockito.when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(true);
 
-        Assertions.assertThrows(EmailAlreadyExistsException.class, () -> {
+        Assertions.assertThrows(BusinessRuleException.class, () -> {
             userService.validateEmail(EMAIL);
         });
     }

@@ -1,6 +1,7 @@
 package io.github.luankuhlmann.myfinances.model.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "users", schema = "finance")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
