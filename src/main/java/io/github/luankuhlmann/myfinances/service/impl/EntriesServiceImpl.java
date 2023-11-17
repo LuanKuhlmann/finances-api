@@ -8,7 +8,6 @@ import io.github.luankuhlmann.myfinances.model.repositories.EntriesRepository;
 import io.github.luankuhlmann.myfinances.service.EntriesService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;

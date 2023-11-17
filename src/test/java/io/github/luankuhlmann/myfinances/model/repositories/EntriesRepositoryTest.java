@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) //Do not allow that spring reconfigure application-test.properties
-class EntriesRepositoryTest {
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)//Do not allow that spring reconfigure application-test.properties
+public class EntriesRepositoryTest {
 
     @Autowired
     EntriesRepository entriesRepository;
