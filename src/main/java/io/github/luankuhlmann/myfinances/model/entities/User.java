@@ -1,7 +1,9 @@
 package io.github.luankuhlmann.myfinances.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -22,6 +25,7 @@ public class User {
 
     private String email;
 
+    @JsonIgnore
     private String password;
 
 }

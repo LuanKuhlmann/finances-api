@@ -2,18 +2,28 @@ package io.github.luankuhlmann.myfinances.service;
 
 import io.github.luankuhlmann.myfinances.exception.BusinessRuleException;
 import io.github.luankuhlmann.myfinances.model.entities.Entries;
+import io.github.luankuhlmann.myfinances.model.entities.User;
 import io.github.luankuhlmann.myfinances.model.entities.enums.EntriesStatus;
 import io.github.luankuhlmann.myfinances.model.repositories.EntriesRepository;
 import io.github.luankuhlmann.myfinances.model.repositories.EntriesRepositoryTest;
 import io.github.luankuhlmann.myfinances.service.impl.EntriesServiceImpl;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.domain.Example;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -54,12 +64,167 @@ class EntriesServiceTest {
         verify(entriesRepository, never()).save(entriesToSave);
     }
 
+    @Test
     public void shallUpdateAEntrie(){
-        Entries savedEntries = EntriesRepositoryTest.createEntries();
-        savedEntries.setId(1l);
-        savedEntries.setStatus(EntriesStatus.PENDING);
-        when(entriesRepository.save(entriesToSave)).thenReturn(entriesToSave);
+        Entries entries = EntriesRepositoryTest.createEntries();
+        entries.setId(1l);
+        entries.setStatus(EntriesStatus.PENDING);
 
-        Entries entries = entriesService.register(entriesToSave);
+        doNothing().when(entriesService).validate(entries);
+
+        when(entriesRepository.save(entries)).thenReturn(entries);
+
+        entriesService.update(entries);
+
+        verify(entriesRepository, times(1)).save(entries);
+    }
+
+    @Test
+    public void shallNotUpdateAEntrieThatWasNotRegisteredYet() {
+        Entries entries = EntriesRepositoryTest.createEntries();
+
+        assertThrows(NullPointerException.class, () -> entriesService.update(entries));
+        verify(entriesRepository, never()).save(entries);
+    }
+
+    @Test
+    public void shallDeleteAEntrie() {
+        Entries entries = EntriesRepositoryTest.createEntries();
+        entries.setId(1l);
+
+        entriesService.delete(entries);
+
+        verify(entriesRepository).delete(entries);
+    }
+
+    @Test
+    public void shallThrowErrorWhenTryingToDeleteANonRegisteredEntrie() {
+        Entries entries = EntriesRepositoryTest.createEntries();
+
+        assertThrows(NullPointerException.class, () -> entriesService.delete(entries));
+
+        verify(entriesRepository, never()).delete(entries);
+    }
+
+    @Test
+    public void shallFilterEntries() {
+        Entries entries = EntriesRepositoryTest.createEntries();
+        entries.setId(1l);
+
+        List<Entries> list = Arrays.asList(entries);
+        when(entriesRepository.findAll(any(Example.class))).thenReturn(list);
+
+        List<Entries> result = entriesService.search(entries);
+
+        assertThat(result)
+                .isNotEmpty()
+                .hasSize(1)
+                .contains(entries);
+    }
+
+    @Test
+    public void shallUpdateEntrieStatus() {
+        Entries entries = EntriesRepositoryTest.createEntries();
+        entries.setId(1l);
+        entries.setStatus(EntriesStatus.PENDING);
+
+        EntriesStatus newStatus = EntriesStatus.COMPLETED;
+        doReturn(entries).when(entriesService).update(entries);
+
+        entriesService.updateStatus(entries, newStatus);
+
+        assertThat(entries.getStatus()).isEqualTo(newStatus);
+        verify(entriesService).update(entries);
+    }
+
+    @Test
+    public void shallFindEntrieByID() {
+        Long id = 1l;
+
+        Entries entries = EntriesRepositoryTest.createEntries();
+        entries.setId(1l);
+
+        when(entriesRepository.findById(id)).thenReturn(Optional.of(entries));
+
+        Optional<Entries> result = entriesService.findById(id);
+
+        assertThat(result.isPresent()).isTrue();
+    }
+
+    @Test
+    public void shallReturnEmptyWhenEntrieNotFound() {
+        Long id = 1l;
+
+        Entries entries = EntriesRepositoryTest.createEntries();
+        entries.setId(1l);
+
+        when(entriesRepository.findById(id)).thenReturn(Optional.empty());
+
+        Optional<Entries> result = entriesService.findById(id);
+
+        assertThat(result.isPresent()).isFalse();
+    }
+
+    @Test
+    public void shallThrowExceptionWhenValidatingAEntrie() {
+        Entries entries = new Entries();
+
+        Throwable error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid description");
+
+        entries.setDescription("");
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid description");
+
+        entries.setDescription("Income");
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid month");
+
+        entries.setMonth(0);
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid month");
+
+        entries.setMonth(13);
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid month");
+
+        entries.setMonth(6);
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid year");
+
+        entries.setYear(202);
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid year");
+
+        entries.setYear(2023);
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid user");
+
+        entries.setUser(new User());
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid user");
+
+        entries.getUser().setId(1l);
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid value");
+
+        entries.setValue(BigDecimal.ZERO);
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a valid value");
+
+        entries.setValue(BigDecimal.valueOf(1));
+
+        error = catchThrowable(() -> entriesService.validate(entries));
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a entries type");
     }
 }
