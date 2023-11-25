@@ -1,6 +1,6 @@
 package io.github.luankuhlmann.myfinances.model.entities.enums;
 
-public enum EntriesStatus {
+public enum EntryStatus {
 
     PENDING,
     CANCELED,

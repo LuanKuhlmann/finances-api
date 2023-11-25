@@ -2,8 +2,8 @@ package io.github.luankuhlmann.myfinances.service.impl;
 
 import io.github.luankuhlmann.myfinances.exception.BusinessRuleException;
 import io.github.luankuhlmann.myfinances.model.entities.Entries;
-import io.github.luankuhlmann.myfinances.model.entities.enums.EntriesStatus;
-import io.github.luankuhlmann.myfinances.model.entities.enums.EntriesType;
+import io.github.luankuhlmann.myfinances.model.entities.enums.EntryStatus;
+import io.github.luankuhlmann.myfinances.model.entities.enums.EntryType;
 import io.github.luankuhlmann.myfinances.model.repositories.EntriesRepository;
 import io.github.luankuhlmann.myfinances.service.EntriesService;
 import jakarta.transaction.Transactional;
@@ -30,7 +30,7 @@ public class EntriesServiceImpl implements EntriesService {
     @Transactional
     public Entries register(Entries entries) {
         validate(entries);
-        entries.setStatus(EntriesStatus.PENDING);
+        entries.setStatus(EntryStatus.PENDING);
         return entriesRepository.save(entries);
     }
 
@@ -60,8 +60,8 @@ public class EntriesServiceImpl implements EntriesService {
     }
 
     @Override
-    public void updateStatus(Entries entries, EntriesStatus entriesStatus) {
-        entries.setStatus(entriesStatus);
+    public void updateStatus(Entries entries, EntryStatus entryStatus) {
+        entries.setStatus(entryStatus);
         update(entries);
     }
 
@@ -88,7 +88,7 @@ public class EntriesServiceImpl implements EntriesService {
         }
 
         if(entries.getType() == null) {
-            throw new BusinessRuleException("Inform a entries type");
+            throw new BusinessRuleException("Inform a entry type");
         }
     }
 
@@ -99,8 +99,8 @@ public class EntriesServiceImpl implements EntriesService {
 
     @Override
     public BigDecimal getBalancePerUser(Long id) {
-        BigDecimal revenue = entriesRepository.getBalancePerEntriesStatusAndUser(id, EntriesType.REVENUE);
-        BigDecimal expense = entriesRepository.getBalancePerEntriesStatusAndUser(id, EntriesType.EXPENSE);
+        BigDecimal revenue = entriesRepository.getBalancePerEntriesStatusAndUser(id, EntryType.REVENUE);
+        BigDecimal expense = entriesRepository.getBalancePerEntriesStatusAndUser(id, EntryType.EXPENSE);
 
         if (revenue == null) {
             revenue = BigDecimal.ZERO;

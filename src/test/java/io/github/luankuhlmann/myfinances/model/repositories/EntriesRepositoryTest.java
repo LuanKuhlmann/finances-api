@@ -1,8 +1,8 @@
 package io.github.luankuhlmann.myfinances.model.repositories;
 
 import io.github.luankuhlmann.myfinances.model.entities.Entries;
-import io.github.luankuhlmann.myfinances.model.entities.enums.EntriesStatus;
-import io.github.luankuhlmann.myfinances.model.entities.enums.EntriesType;
+import io.github.luankuhlmann.myfinances.model.entities.enums.EntryStatus;
+import io.github.luankuhlmann.myfinances.model.entities.enums.EntryType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,8 +38,8 @@ public class EntriesRepositoryTest {
         entries.setMonth(1);
         entries.setDescription("Some entries");
         entries.setValue(BigDecimal.valueOf(10));
-        entries.setType(EntriesType.REVENUE);
-        entries.setStatus(EntriesStatus.PENDING);
+        entries.setType(EntryType.REVENUE);
+        entries.setStatus(EntryStatus.PENDING);
         entries.setRegisterDate(LocalDate.now());
 
         return entries;
@@ -79,7 +79,7 @@ public class EntriesRepositoryTest {
 
         entries.setYear(2022);
         entries.setDescription("Update description");
-        entries.setStatus(EntriesStatus.CANCELED);
+        entries.setStatus(EntryStatus.CANCELED);
 
         entriesRepository.save(entries);
 
@@ -87,7 +87,7 @@ public class EntriesRepositoryTest {
 
         assertEquals(updatedEntries.getYear(), 2022);
         assertEquals(updatedEntries.getDescription(), "Update description");
-        assertEquals(updatedEntries.getStatus(), EntriesStatus.CANCELED);
+        assertEquals(updatedEntries.getStatus(), EntryStatus.CANCELED);
     }
 
     @Test

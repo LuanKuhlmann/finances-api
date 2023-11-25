@@ -1,6 +1,6 @@
 package io.github.luankuhlmann.myfinances.model.entities.enums;
 
-public enum EntriesType {
+public enum EntryType {
     REVENUE,
     EXPENSE
 }

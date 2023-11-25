@@ -47,7 +47,7 @@ class UserControllerTest {
     EntriesService entriesService;
 
     @Test
-    public void shallAnthenticateAUser() throws Exception {
+    public void shallAuthenticateAUser() throws Exception {
         UserDTO userDTO = UserDTO.builder().email(EMAIL).password(PASSWORD).build();
         User user = User.builder().id(1l).email(EMAIL).password(PASSWORD).build();
 

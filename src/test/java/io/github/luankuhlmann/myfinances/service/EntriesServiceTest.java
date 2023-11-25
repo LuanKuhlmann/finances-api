@@ -3,11 +3,10 @@ package io.github.luankuhlmann.myfinances.service;
 import io.github.luankuhlmann.myfinances.exception.BusinessRuleException;
 import io.github.luankuhlmann.myfinances.model.entities.Entries;
 import io.github.luankuhlmann.myfinances.model.entities.User;
-import io.github.luankuhlmann.myfinances.model.entities.enums.EntriesStatus;
+import io.github.luankuhlmann.myfinances.model.entities.enums.EntryStatus;
 import io.github.luankuhlmann.myfinances.model.repositories.EntriesRepository;
 import io.github.luankuhlmann.myfinances.model.repositories.EntriesRepositoryTest;
 import io.github.luankuhlmann.myfinances.service.impl.EntriesServiceImpl;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,13 +38,13 @@ class EntriesServiceTest {
     EntriesRepository entriesRepository;
 
     @Test
-    public void shallRegisterAEntrie(){
+    public void shallRegisterAEntry(){
         Entries entriesToSave = EntriesRepositoryTest.createEntries();
         doNothing().when(entriesService).validate(entriesToSave);
 
         Entries savedEntries = EntriesRepositoryTest.createEntries();
         savedEntries.setId(entriesToSave.getId());
-        savedEntries.setStatus(EntriesStatus.PENDING);
+        savedEntries.setStatus(EntryStatus.PENDING);
         when(entriesRepository.save(entriesToSave)).thenReturn(entriesToSave);
 
         Entries entries = entriesService.register(entriesToSave);
@@ -55,7 +54,7 @@ class EntriesServiceTest {
     }
 
     @Test
-    public void shallNotRegisterAEntrieWhenTheresAValidationError() {
+    public void shallNotRegisterAEntryWhenTheresAValidationError() {
         Entries entriesToSave = EntriesRepositoryTest.createEntries();
         doThrow(BusinessRuleException.class).when(entriesService).validate(entriesToSave);
 
@@ -65,10 +64,10 @@ class EntriesServiceTest {
     }
 
     @Test
-    public void shallUpdateAEntrie(){
+    public void shallUpdateAEntry(){
         Entries entries = EntriesRepositoryTest.createEntries();
         entries.setId(1l);
-        entries.setStatus(EntriesStatus.PENDING);
+        entries.setStatus(EntryStatus.PENDING);
 
         doNothing().when(entriesService).validate(entries);
 
@@ -80,7 +79,7 @@ class EntriesServiceTest {
     }
 
     @Test
-    public void shallNotUpdateAEntrieThatWasNotRegisteredYet() {
+    public void shallNotUpdateAEntryThatWasNotRegisteredYet() {
         Entries entries = EntriesRepositoryTest.createEntries();
 
         assertThrows(NullPointerException.class, () -> entriesService.update(entries));
@@ -88,7 +87,7 @@ class EntriesServiceTest {
     }
 
     @Test
-    public void shallDeleteAEntrie() {
+    public void shallDeleteAEntry() {
         Entries entries = EntriesRepositoryTest.createEntries();
         entries.setId(1l);
 
@@ -98,7 +97,7 @@ class EntriesServiceTest {
     }
 
     @Test
-    public void shallThrowErrorWhenTryingToDeleteANonRegisteredEntrie() {
+    public void shallThrowErrorWhenTryingToDeleteANonRegisteredEntry() {
         Entries entries = EntriesRepositoryTest.createEntries();
 
         assertThrows(NullPointerException.class, () -> entriesService.delete(entries));
@@ -123,12 +122,12 @@ class EntriesServiceTest {
     }
 
     @Test
-    public void shallUpdateEntrieStatus() {
+    public void shallUpdateEntryStatus() {
         Entries entries = EntriesRepositoryTest.createEntries();
         entries.setId(1l);
-        entries.setStatus(EntriesStatus.PENDING);
+        entries.setStatus(EntryStatus.PENDING);
 
-        EntriesStatus newStatus = EntriesStatus.COMPLETED;
+        EntryStatus newStatus = EntryStatus.COMPLETED;
         doReturn(entries).when(entriesService).update(entries);
 
         entriesService.updateStatus(entries, newStatus);
@@ -138,7 +137,7 @@ class EntriesServiceTest {
     }
 
     @Test
-    public void shallFindEntrieByID() {
+    public void shallFindEntryByID() {
         Long id = 1l;
 
         Entries entries = EntriesRepositoryTest.createEntries();
@@ -152,7 +151,7 @@ class EntriesServiceTest {
     }
 
     @Test
-    public void shallReturnEmptyWhenEntrieNotFound() {
+    public void shallReturnEmptyWhenEntryNotFound() {
         Long id = 1l;
 
         Entries entries = EntriesRepositoryTest.createEntries();
@@ -166,7 +165,7 @@ class EntriesServiceTest {
     }
 
     @Test
-    public void shallThrowExceptionWhenValidatingAEntrie() {
+    public void shallThrowExceptionWhenValidatingAEntry() {
         Entries entries = new Entries();
 
         Throwable error = catchThrowable(() -> entriesService.validate(entries));
@@ -225,6 +224,6 @@ class EntriesServiceTest {
         entries.setValue(BigDecimal.valueOf(1));
 
         error = catchThrowable(() -> entriesService.validate(entries));
-        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a entries type");
+        assertThat(error).isInstanceOf(BusinessRuleException.class).hasMessage("Inform a entry type");
     }
 }

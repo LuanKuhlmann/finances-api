@@ -5,8 +5,8 @@ import io.github.luankuhlmann.myfinances.dto.StatusUpdateDTO;
 import io.github.luankuhlmann.myfinances.exception.BusinessRuleException;
 import io.github.luankuhlmann.myfinances.model.entities.Entries;
 import io.github.luankuhlmann.myfinances.model.entities.User;
-import io.github.luankuhlmann.myfinances.model.entities.enums.EntriesStatus;
-import io.github.luankuhlmann.myfinances.model.entities.enums.EntriesType;
+import io.github.luankuhlmann.myfinances.model.entities.enums.EntryStatus;
+import io.github.luankuhlmann.myfinances.model.entities.enums.EntryType;
 import io.github.luankuhlmann.myfinances.service.EntriesService;
 import io.github.luankuhlmann.myfinances.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -79,14 +79,14 @@ public class EntriesController {
     @PutMapping("/status-update/{id}")
     public ResponseEntity updateStatus(@PathVariable("id") Long id, @RequestBody StatusUpdateDTO statusUpdateDTO) {
         return entriesService.findById(id).map(entity -> {
-            EntriesStatus entriesStatus = EntriesStatus.valueOf(statusUpdateDTO.getStatus());
+            EntryStatus entryStatus = EntryStatus.valueOf(statusUpdateDTO.getStatus());
 
-            if (entriesStatus == null) {
+            if (entryStatus == null) {
                 return ResponseEntity.badRequest().body("Status update not possible, inform a valid request");
             }
 
             try {
-                entity.setStatus(entriesStatus);
+                entity.setStatus(entryStatus);
                 entriesService.update(entity);
                 return ResponseEntity.ok(entity);
             } catch (BusinessRuleException e) {
@@ -116,11 +116,11 @@ public class EntriesController {
                 .orElseThrow( () -> new BusinessRuleException("User not found")));
 
         if(entriesDTO.getType() != null) {
-            entries.setType(EntriesType.valueOf(entriesDTO.getType()));
+            entries.setType(EntryType.valueOf(entriesDTO.getType()));
         }
 
         if(entriesDTO.getStatus() != null) {
-            entries.setStatus(EntriesStatus.valueOf(entriesDTO.getStatus()));
+            entries.setStatus(EntryStatus.valueOf(entriesDTO.getStatus()));
         }
 
         return entries;
